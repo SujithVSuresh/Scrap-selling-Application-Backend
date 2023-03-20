@@ -6,14 +6,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'is_active', 'userType']
+        fields = ['id', 'username', "first_name", 'is_active', 'userType']
 
 
 class UserSerializerWithToken(UserSerializer):
     token = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'is_active', 'userType', 'token']    
+        fields = ['id', 'username', "first_name", 'is_active', 'userType', 'token']    
 
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
