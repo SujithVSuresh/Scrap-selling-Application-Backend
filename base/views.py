@@ -1,12 +1,13 @@
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import UserSerializerWithToken
+from .serializers import ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
-from .models import CustomUser, ScraperAdminProfile
+from .models import CustomUser, ScraperAdminProfile, ScraperStaffProfile
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -42,10 +43,12 @@ def registerScraper(request):
 
 #scraperAdminProfile
 @api_view(['POST'])    
-def scraperAdminProfileCreator(request, id):
+@permission_classes([IsAuthenticated])  
+def scraperAdminProfileCreator(request):
     data = request.data
+    req_user = request.user
     try:
-        user = CustomUser.objects.get(id=id)
+        user = CustomUser.objects.get(id=req_user.id)
         scraper_admin_profile = ScraperAdminProfile.objects.create(
             user=user,
             businessName=data['businessName'],
@@ -67,4 +70,76 @@ def scraperAdminProfileCreator(request, id):
     except:
         message = {'detail':'profile for this user has already been created'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)    
-    return Response(serializer.data)         
+    return Response(serializer.data) 
+
+#scraperStaffAdder
+@api_view(['POST'])  
+@permission_classes([IsAuthenticated])    
+def addStaffToBusiness(request):
+    data = request.data
+    user = request.user
+    try:
+        admin = ScraperAdminProfile.objects.get(user__id=data['id'])
+        staff = CustomUser.objects.get(id=user.id)
+
+        admin.staffs.add(staff)
+        staff.is_active = True
+        staff.userType = "ScraperStaff"
+        staff.save()
+
+        staff_profile = ScraperStaffProfile.objects.create(staff=staff, staffOf=admin.user)
+
+        serializer = ScraperStaffProfileSerializer(staff_profile, many=False)
+
+
+    except Exception as e:
+
+        message = {'detail':e}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)    
+    return Response(serializer.data) 
+
+
+@api_view(['GET'])   
+@permission_classes([IsAuthenticated])  
+def getAllStaffs(request):
+    user = request.user
+    try:
+        
+        #admin = CustomUser.objects.get(id=id)
+        staffs = ScraperStaffProfile.objects.filter(staffOf__id=user.id)
+        print(staffs)
+
+        serializer = ScraperStaffProfileSerializer(staffs, many=True)
+        
+
+    except Exception as e:
+
+        message = {'detail':e}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)    
+    return Response(serializer.data) 
+
+@api_view(['PUT', 'DELETE'])   
+@permission_classes([IsAuthenticated]) 
+def deactivateStaff(request, id):
+    user = request.user
+    try:
+        staff = CustomUser.objects.get(id=id)
+        staff.is_active = False
+        staff.userType = None
+        staff.save()
+
+        admin = ScraperAdminProfile.objects.get(user__id=user.id)
+        admin.staffs.remove(staff)
+
+        staff_profile = ScraperStaffProfile.objects.get(staff__id=id)
+        print("profile", staff_profile)
+        staff_profile.delete()
+
+        serializer = UserSerializer(staff, many=False)
+        
+
+    except Exception as e:
+
+        message = {'detail':e}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)    
+    return Response(serializer.data)                     
