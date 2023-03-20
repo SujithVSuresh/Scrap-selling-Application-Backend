@@ -89,7 +89,7 @@ def addStaffToBusiness(request):
 
         staff_profile = ScraperStaffProfile.objects.create(staff=staff, staffOf=admin.user)
 
-        serializer = ScraperStaffProfileSerializer(staff_profile, many=False)
+        serializer = UserSerializerWithToken(staff, many=False)
 
 
     except Exception as e:
