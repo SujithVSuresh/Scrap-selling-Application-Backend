@@ -9,6 +9,6 @@ urlpatterns = [
     path('scraper/admin/profile-creator/', scraperAdminProfileCreator, name='scraperAdminProfileCreator'),
     path('scraper/admin/all-staffs/', getAllStaffs, name='getAllStaffs'),
     path('scraper/admin/deactivate-staff/<int:id>/', deactivateStaff, name='deactivateStaff'),
-    path('scraper/staff/add-staff/', addStaffToBusiness, name='addStaffToBusiness'),
+    path('scraper/staff/add-staff/<int:id>/', addStaffToBusiness, name='addStaffToBusiness'),
 
 ]

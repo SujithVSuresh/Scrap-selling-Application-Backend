@@ -73,14 +73,12 @@ def scraperAdminProfileCreator(request):
     return Response(serializer.data) 
 
 #scraperStaffAdder
-@api_view(['POST'])  
-@permission_classes([IsAuthenticated])    
-def addStaffToBusiness(request):
+@api_view(['POST'])   
+def addStaffToBusiness(request, id):
     data = request.data
-    user = request.user
     try:
         admin = ScraperAdminProfile.objects.get(user__id=data['id'])
-        staff = CustomUser.objects.get(id=user.id)
+        staff = CustomUser.objects.get(id=id)
 
         admin.staffs.add(staff)
         staff.is_active = True
