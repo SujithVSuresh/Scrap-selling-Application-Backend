@@ -43,12 +43,10 @@ def registerScraper(request):
 
 #scraperAdminProfile
 @api_view(['POST'])    
-@permission_classes([IsAuthenticated])  
-def scraperAdminProfileCreator(request):
+def scraperAdminProfileCreator(request, id):
     data = request.data
-    req_user = request.user
     try:
-        user = CustomUser.objects.get(id=req_user.id)
+        user = CustomUser.objects.get(id=id)
         scraper_admin_profile = ScraperAdminProfile.objects.create(
             user=user,
             businessName=data['businessName'],
