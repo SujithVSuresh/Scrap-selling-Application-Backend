@@ -1,7 +1,8 @@
 
 from rest_framework import serializers
-from .models import Category, CustomUser, ScraperStaffProfile, Item, SellRequest, Address, Order
+from .models import Category, CustomUser, ScraperStaffProfile, Item, SellRequest, Address, Order, ScraperAdminProfile
 from rest_framework_simplejwt.tokens import RefreshToken
+from geopy.distance import distance
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -59,9 +60,26 @@ class SellRequestSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     sellRequest = SellRequestSerializer(read_only=True)
+    acceptedUser = UserSerializer(read_only=True)
+    distance = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model = Order
-        fields = "__all__"                 
+        fields = "__all__"   
+
+    def get_distance(self, obj):
+        requested_user = obj.sellRequest.pickupAddress
+        #requested user coordinates
+        requested_user_latitude = requested_user.latitude
+        requested_user_longitude = requested_user.longitude
+        accepted_user = ScraperAdminProfile.objects.get(user__id=obj.acceptedUser.id)
+        #accepted user coordinates
+        accepted_user_latitude = accepted_user.latitude 
+        accepted_user_longitude = accepted_user.longitude 
+
+        dist = distance((accepted_user_latitude, accepted_user_longitude), (requested_user_latitude, requested_user_longitude)).km
+        return dist
+
 
                           
           

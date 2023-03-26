@@ -171,17 +171,18 @@ def getAllTodaysSellRequests(request):
         
           
 @api_view(['GET']) 
-@permission_classes([IsAuthenticated]) 
+#@permission_classes([IsAuthenticated]) 
 def getAllPendingOrders(request):
     try:
-        user = request.user
-        if user.userType=="ScraperAdmin":
-            accepted_user = user.id
-        if user.userType=="ScraperStaff":
-            staff = ScraperStaffProfile.objects.get(staff__id=user.id)  
-            accepted_user = staff.staffOf.id  
+        #user = request.user
+        #if user.userType=="ScraperAdmin":
+        #    accepted_user = user.id
+        #if user.userType=="ScraperStaff":
+        #    staff = ScraperStaffProfile.objects.get(staff__id=user.id)  
+        #    accepted_user = staff.staffOf.id  
+        #  acceptedUser__id=accepted_user
 
-        orders = Order.objects.filter(requestStatus="Accepted", acceptedUser__id=accepted_user)
+        orders = Order.objects.filter(requestStatus="Accepted")
         serializer = OrderSerializer(orders, many=True)
     except:
         return Response({"details":"No Pending orders found"})    
