@@ -40,33 +40,29 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = "__all__"   
 
 
-class SellRequestSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(read_only=True, many=True)
-    class Meta:
-        model = SellRequest
-        fields = "__all__" 
-
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = "__all__"        
+        fields = "__all__"         
 
-class AddressWithSellRequestSerializer(AddressSerializer):
-    sellRequest = SellRequestSerializer(read_only=True)
+class SellRequestSerializer(serializers.ModelSerializer):
+    data = serializers.SerializerMethodField(read_only=True)
+    pickupAddress = AddressSerializer(read_only=True)
     class Meta:
-        model = Address
-        fields = "__all__"  
+        model = SellRequest
+        fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser"] 
+
+    def get_data(self, obj):
+        items = obj.items.all()
+        serializer = ItemSerializer(items, many=True)
+        return serializer.data   
 
 class OrderSerializer(serializers.ModelSerializer):
     sellRequest = SellRequestSerializer(read_only=True)
-    address = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Order
-        fields = "__all__"   
+        fields = "__all__"                 
 
-    def get_address(self, obj):
-        address = Address.objects.get(sellRequest__id=obj.sellRequest.id)
-        serializer = AddressSerializer(address)
-        return serializer.data                            
+                          
           
 

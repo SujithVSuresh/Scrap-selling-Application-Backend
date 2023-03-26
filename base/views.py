@@ -1,7 +1,7 @@
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, OrderSerializer, AddressWithSellRequestSerializer
+from .serializers import ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -147,24 +147,29 @@ def getAllSellRequests(request):
     try:
         user = request.user
         scraper_admin = ScraperAdminProfile.objects.get(user__id=user.id)
-        address = Address.objects.filter(village=scraper_admin.village, sellRequest__requestStatus="Requested")
-        serializer = AddressWithSellRequestSerializer(address, many=True)
+        
+        sell_request = SellRequest.objects.filter(requestStatus="Requested", pickupAddress__village=scraper_admin.village)
+        print("oops", sell_request)
+
+        serializer = SellRequestSerializer(sell_request, many=True)
     except:
         return Response({"details":"No Sell Request found"})    
     return Response(serializer.data)    
 
 @api_view(['GET']) 
-@permission_classes([IsAuthenticated]) 
+#@permission_classes([IsAuthenticated]) 
 def getAllTodaysSellRequests(request):
     try:
         user = request.user
         scraper_admin = ScraperAdminProfile.objects.get(user__id=user.id)
-        address = Address.objects.filter(village=scraper_admin.village, sellRequest__requestStatus="Requested", sellRequest__requestedDate=datetime.today())
-        serializer = AddressWithSellRequestSerializer(address, many=True)
+
+        sell_request = SellRequest.objects.filter(requestStatus="Requested", requestedDate=datetime.today(), pickupAddress__village=scraper_admin.village)
+        serializer = SellRequestSerializer(sell_request, many=True)
     except:
         return Response({"details":"No Sell Request found"})    
-    return Response(serializer.data)     
-
+    return Response(serializer.data) 
+        
+          
 @api_view(['GET']) 
 @permission_classes([IsAuthenticated]) 
 def getAllPendingOrders(request):
@@ -180,9 +185,10 @@ def getAllPendingOrders(request):
         serializer = OrderSerializer(orders, many=True)
     except:
         return Response({"details":"No Pending orders found"})    
-    return Response(serializer.data)   
+    return Response(serializer.data)  
 
 @api_view(['GET']) 
+@permission_classes([IsAuthenticated]) 
 def getAllCompletedOrders(request):
     try:
         user = request.user
@@ -191,9 +197,9 @@ def getAllCompletedOrders(request):
         if user.userType=="ScraperStaff":
             staff = ScraperStaffProfile.objects.get(staff__id=user.id)  
             accepted_user = staff.staffOf.id  
+
         orders = Order.objects.filter(requestStatus="Completed", acceptedUser__id=accepted_user)
         serializer = OrderSerializer(orders, many=True)
     except:
-        return Response({"details":"No Completed orders found"})
-    return Response(serializer.data)            
-
+        return Response({"details":"No Pending orders found"})    
+    return Response(serializer.data)    

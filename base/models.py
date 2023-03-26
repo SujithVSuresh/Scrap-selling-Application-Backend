@@ -78,17 +78,8 @@ STATUS = (
        ("Cancelled", "Cancelled"),
 ) 
 
-class SellRequest(models.Model):
-    items = models.ManyToManyField(Item)
-    requestedUser = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, blank=False, null=True, verbose_name='Requested User')
-    requestedDate = models.DateField(auto_now_add=True)
-    requestStatus = models.CharField(max_length = 10, default="Requested", choices=STATUS, null=True, blank=False)
-    
-    def __str__(self):
-        return str(self.requestedUser)  
-
 class Address(models.Model):
-    sellRequest = models.OneToOneField(SellRequest, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     addressName = models.CharField(max_length=200, null=True, blank=True)
     city = models.CharField(max_length=200, null=True, blank=True)
     village = models.CharField(max_length=200, null=True, blank=True)
@@ -100,7 +91,19 @@ class Address(models.Model):
     phoneNumber = models.CharField(max_length=12, null=True, blank=True)
 
     def __str__(self):
-        return str(self.addressName) 
+        return str(self.user) 
+
+class SellRequest(models.Model):
+    items = models.ManyToManyField(Item)
+    requestedUser = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, blank=False, null=True, verbose_name='Requested User')
+    requestedDate = models.DateField(auto_now_add=True)
+    requestStatus = models.CharField(max_length = 10, default="Requested", choices=STATUS, null=True, blank=False)
+    pickupAddress = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=False, null=True)
+    
+    def __str__(self):
+        return str(self.requestedUser)  
+
+
 
 ORDER_STATUS = (
        ("Accepted", "Accepted"),
