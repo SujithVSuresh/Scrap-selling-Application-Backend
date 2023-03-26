@@ -48,6 +48,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class SellRequestSerializer(serializers.ModelSerializer):
     data = serializers.SerializerMethodField(read_only=True)
+    requestedUser = UserSerializer(read_only=True)
     pickupAddress = AddressSerializer(read_only=True)
     class Meta:
         model = SellRequest
@@ -60,7 +61,6 @@ class SellRequestSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     sellRequest = SellRequestSerializer(read_only=True)
-    requestedUser = UserSerializer(read_only=True)
     distance = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
