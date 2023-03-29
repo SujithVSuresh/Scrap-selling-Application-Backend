@@ -1,7 +1,7 @@
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import OrderSerializerWithDistance, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, OrderSerializerWithDistance
+from .serializers import OrderSerializerWithDistance, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -171,21 +171,20 @@ def getAllTodaysSellRequests(request):
         
           
 @api_view(['GET']) 
-#@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated]) 
 def getAllPendingOrders(request):
     try:
-        #user = request.user
-        #if user.userType=="ScraperAdmin":
-        #    accepted_user = user.id
-        #if user.userType=="ScraperStaff":
-        #    staff = ScraperStaffProfile.objects.get(staff__id=user.id)  
-        #    accepted_user = staff.staffOf.id  
-        #  acceptedUser__id=accepted_user
+        user = request.user
+        if user.userType=="ScraperAdmin":
+            accepted_user = user.id
+        if user.userType=="ScraperStaff":
+            staff = ScraperStaffProfile.objects.get(staff__id=user.id)  
+            accepted_user = staff.staffOf.id  
 
-        orders = Order.objects.filter(requestStatus="Accepted")
-        serializer = OrderSerializer(orders, many=True)
-    except:
-        return Response({"details":"No Pending orders found"})    
+        orders = Order.objects.filter(requestStatus="Accepted", acceptedUser=accepted_user)
+        serializer = OrderSerializerWithDistance(orders, many=True)
+    except Exception as e:
+        return Response({"details":e})    
     return Response(serializer.data)  
 
 @api_view(['GET']) 

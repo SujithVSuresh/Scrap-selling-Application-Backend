@@ -68,8 +68,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 
-class OrderSerializerWithDistance(serializers.ModelSerializer):
-    sellRequest = SellRequestSerializer(read_only=True)
+class OrderSerializerWithDistance(OrderSerializer):
     distance = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
