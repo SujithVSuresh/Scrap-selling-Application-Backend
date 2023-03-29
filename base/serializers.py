@@ -61,6 +61,15 @@ class SellRequestSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     sellRequest = SellRequestSerializer(read_only=True)
+    
+    class Meta:
+        model = Order
+        fields = "__all__"   
+
+
+
+class OrderSerializerWithDistance(serializers.ModelSerializer):
+    sellRequest = SellRequestSerializer(read_only=True)
     distance = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
@@ -78,7 +87,7 @@ class OrderSerializer(serializers.ModelSerializer):
         accepted_user_longitude = accepted_user.longitude 
 
         dist = distance((accepted_user_latitude, accepted_user_longitude), (requested_user_latitude, requested_user_longitude)).km
-        return dist
+        return dist        
 
 
                           

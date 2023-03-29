@@ -1,7 +1,7 @@
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer
+from .serializers import OrderSerializerWithDistance, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, OrderSerializerWithDistance
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -200,19 +200,19 @@ def getAllCompletedOrders(request):
             accepted_user = staff.staffOf.id  
 
         orders = Order.objects.filter(requestStatus="Completed", acceptedUser__id=accepted_user)
-        serializer = OrderSerializer(orders, many=True)
+        serializer = OrderSerializerWithDistance(orders, many=True)
     except:
         return Response({"details":"No Pending orders found"})    
     return Response(serializer.data)   
 
 
-@api_view(['PUT']) 
+@api_view(['POST']) 
 @permission_classes([IsAuthenticated]) 
 def completeOrder(request, id):
     try:
         user = request.user
         data = request.data
-        order_items = data['orderItems']
+        #order_items = data['orderItems']
 
         order = Order.objects.get(id=id)
         order.totalPrice = data['totalPrice']
@@ -227,7 +227,7 @@ def completeOrder(request, id):
 
   
             
-        serializer = OrderSerializer(order)    
+        serializer = OrderSerializer(order, many=False)    
         return Response(serializer.data)
     except Exception as e:
         return Response(e)
