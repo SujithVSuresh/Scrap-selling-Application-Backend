@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders
+from .views import MyTokenObtainPairView, registerScraper, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder
 
 
 urlpatterns = [
@@ -15,5 +15,6 @@ urlpatterns = [
     path('scraper/admin/todays-sell-requests/', getAllTodaysSellRequests, name='getAllTodaysellRequests'),
     path('scraper/admin/pending-orders/', getAllPendingOrders, name='getAllPendingOrders'),
     path('scraper/admin/completed-orders/', getAllCompletedOrders, name='getAllCompletedOrders'),
+    path('scraper/admin/complete-order/<int:id>/', completeOrder, name='completeOrder'),
 
 ]

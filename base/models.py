@@ -71,12 +71,7 @@ class Item(models.Model):
     def __str__(self):
         return str(self.itemName)    
 
-STATUS = (
-       ("Requested", "Requested"),
-       ("Accepted", "Accepted"),
-       ("Completed", "Completed"),
-       ("Cancelled", "Cancelled"),
-) 
+
 
 class Address(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
@@ -92,6 +87,12 @@ class Address(models.Model):
 
     def __str__(self):
         return str(self.user) 
+STATUS = (
+       ("Requested", "Requested"),
+       ("Accepted", "Accepted"),
+       ("Completed", "Completed"),
+       ("Cancelled", "Cancelled"),
+) 
 
 class SellRequest(models.Model):
     items = models.ManyToManyField(Item)

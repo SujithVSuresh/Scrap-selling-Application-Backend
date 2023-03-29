@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
-from .models import Address, CustomUser, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order
+from .models import Address, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime
 
@@ -203,4 +203,33 @@ def getAllCompletedOrders(request):
         serializer = OrderSerializer(orders, many=True)
     except:
         return Response({"details":"No Pending orders found"})    
-    return Response(serializer.data)    
+    return Response(serializer.data)   
+
+
+@api_view(['PUT']) 
+@permission_classes([IsAuthenticated]) 
+def completeOrder(request, id):
+    try:
+        user = request.user
+        data = request.data
+        order_items = data['orderItems']
+
+        order = Order.objects.get(id=id)
+        order.totalPrice = data['totalPrice']
+        order.completedUser = user
+        order.completedDate = datetime.today()
+        order.requestStatus = "Completed"
+        order.save()
+
+        sell_request = SellRequest.objects.get(id=order.sellRequest.id)
+        sell_request.requestStatus = "Completed"
+        sell_request.save()
+
+  
+            
+        serializer = OrderSerializer(order)    
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(e)
+
+     
