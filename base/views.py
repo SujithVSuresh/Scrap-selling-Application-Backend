@@ -231,4 +231,25 @@ def completeOrder(request, id):
     except Exception as e:
         return Response(e)
 
+@api_view(['PUT']) 
+@permission_classes([IsAuthenticated]) 
+def cancelOrder(request, id):
+    try:
+        user = request.user
+
+        order = Order.objects.get(id=id)
+        order.requestStatus = "Order cancelled"
+        order.save()
+
+        sell_request = SellRequest.objects.get(id=order.sellRequest.id)
+        sell_request.requestStatus = "Requested"
+        sell_request.save()
+
+  
+            
+        serializer = OrderSerializer(order, many=False)    
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(e)        
+
      
