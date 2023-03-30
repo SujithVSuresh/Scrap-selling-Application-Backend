@@ -50,14 +50,29 @@ class SellRequestSerializer(serializers.ModelSerializer):
     data = serializers.SerializerMethodField(read_only=True)
     requestedUser = UserSerializer(read_only=True)
     pickupAddress = AddressSerializer(read_only=True)
+    distance = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = SellRequest
-        fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser"] 
+        fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser", "distance"] 
 
     def get_data(self, obj):
         items = obj.items.all()
         serializer = ItemSerializer(items, many=True)
-        return serializer.data   
+        return serializer.data
+
+    def get_distance(self, obj):
+        user_id = self.context.get("user_id")
+        requested_user = obj.pickupAddress
+        #requested user coordinates
+        requested_user_latitude = requested_user.latitude
+        requested_user_longitude = requested_user.longitude
+        accepted_user = ScraperAdminProfile.objects.get(user__id=user_id)
+        #accepted user coordinates
+        accepted_user_latitude = accepted_user.latitude 
+        accepted_user_longitude = accepted_user.longitude 
+
+        dist = distance((accepted_user_latitude, accepted_user_longitude), (requested_user_latitude, requested_user_longitude)).km
+        return dist       
 
 class OrderSerializer(serializers.ModelSerializer):
     sellRequest = SellRequestSerializer(read_only=True)

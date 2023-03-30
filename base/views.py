@@ -151,7 +151,7 @@ def getAllSellRequests(request):
         sell_request = SellRequest.objects.filter(requestStatus="Requested", pickupAddress__village=scraper_admin.village)
         print("oops", sell_request)
 
-        serializer = SellRequestSerializer(sell_request, many=True)
+        serializer = SellRequestSerializer(sell_request, many=True, context={'user_id': user.id})
     except:
         return Response({"details":"No Sell Request found"})    
     return Response(serializer.data)    
@@ -164,7 +164,7 @@ def getAllTodaysSellRequests(request):
         scraper_admin = ScraperAdminProfile.objects.get(user__id=user.id)
 
         sell_request = SellRequest.objects.filter(requestStatus="Requested", requestedDate=datetime.today(), pickupAddress__village=scraper_admin.village)
-        serializer = SellRequestSerializer(sell_request, many=True)
+        serializer = SellRequestSerializer(sell_request, many=True, context={'user_id': user.id})
     except:
         return Response({"details":"No Sell Request found"})    
     return Response(serializer.data) 
@@ -181,7 +181,7 @@ def getAllPendingOrders(request):
             staff = ScraperStaffProfile.objects.get(staff__id=user.id)  
             accepted_user = staff.staffOf.id  
 
-        orders = Order.objects.filter(requestStatus="Accepted", acceptedUser=accepted_user)
+        orders = Order.objects.filter(requestStatus__in=["Accepted", "Order cancelled"], acceptedUser=accepted_user)
         serializer = OrderSerializerWithDistance(orders, many=True)
     except Exception as e:
         return Response({"details":e})    
@@ -250,6 +250,45 @@ def cancelOrder(request, id):
         serializer = OrderSerializer(order, many=False)    
         return Response(serializer.data)
     except Exception as e:
-        return Response(e)        
+        return Response(e)
+
+
+@api_view(['POST']) 
+@permission_classes([IsAuthenticated]) 
+def acceptSellRequest(request, id):
+    try:
+        user = request.user
+        data = request.data
+        sell_request = SellRequest.objects.get(id=id)
+
+        order = Order.objects.create(
+            sellRequest=sell_request,
+            requestStatus="Accepted",
+            pickupDate=data['pickupDate'],
+            acceptedUser=user,
+            acceptedDate=datetime.today()
+        )
+
+        sell_request.requestStatus="Accepted"
+        sell_request.save()
+        
+            
+        serializer = OrderSerializer(order, many=False)    
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(e)
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated]) 
+def getOrdersToCompleteTodayForScraperStaff(request):
+    try:
+        user = request.user
+        staff = ScraperStaffProfile.objects.get(staff__id=user.id)
+        orders = Order.objects.filter(requestStatus="Accepted", acceptedUser=staff.staffOf.id)
+        serializer = OrderSerializerWithDistance(orders, many=True)    
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(e)
+
 
      
