@@ -1,7 +1,8 @@
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import OrderSerializerWithDistance, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer
+from .serializers import OrderSerializerWithDistance, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer
+
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -151,7 +152,7 @@ def getAllSellRequests(request):
         sell_request = SellRequest.objects.filter(requestStatus="Requested", pickupAddress__village=scraper_admin.village)
         print("oops", sell_request)
 
-        serializer = SellRequestSerializer(sell_request, many=True, context={'user_id': user.id})
+        serializer = SellRequestWithDistanceSerializer(sell_request, many=True, context={'user_id': user.id})
     except:
         return Response({"details":"No Sell Request found"})    
     return Response(serializer.data)    
@@ -164,7 +165,7 @@ def getAllTodaysSellRequests(request):
         scraper_admin = ScraperAdminProfile.objects.get(user__id=user.id)
 
         sell_request = SellRequest.objects.filter(requestStatus="Requested", requestedDate=datetime.today(), pickupAddress__village=scraper_admin.village)
-        serializer = SellRequestSerializer(sell_request, many=True, context={'user_id': user.id})
+        serializer = SellRequestWithDistanceSerializer(sell_request, many=True, context={'user_id': user.id})
     except:
         return Response({"details":"No Sell Request found"})    
     return Response(serializer.data) 
@@ -185,7 +186,7 @@ def getAllPendingOrders(request):
         serializer = OrderSerializerWithDistance(orders, many=True)
     except Exception as e:
         return Response({"details":e})    
-    return Response(serializer.data)  
+    return Response(serializer.data) 
 
 @api_view(['GET']) 
 @permission_classes([IsAuthenticated]) 
@@ -199,6 +200,7 @@ def getAllCompletedOrders(request):
             accepted_user = staff.staffOf.id  
 
         orders = Order.objects.filter(requestStatus="Completed", acceptedUser__id=accepted_user)
+        print("orders", orders)
         serializer = OrderSerializerWithDistance(orders, many=True)
     except:
         return Response({"details":"No Pending orders found"})    
@@ -284,10 +286,12 @@ def getOrdersToCompleteTodayForScraperStaff(request):
     try:
         user = request.user
         staff = ScraperStaffProfile.objects.get(staff__id=user.id)
+        print("pooo", staff.staffOf.id)
         orders = Order.objects.filter(requestStatus="Accepted", acceptedUser=staff.staffOf.id)
         serializer = OrderSerializerWithDistance(orders, many=True)    
         return Response(serializer.data)
     except Exception as e:
+        print(e)
         return Response(e)
 
 
