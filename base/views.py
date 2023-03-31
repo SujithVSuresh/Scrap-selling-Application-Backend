@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from .models import Address, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem
 from rest_framework.permissions import IsAuthenticated
-from datetime import datetime
+from datetime import datetime, date
 
 # Create your views here.
 
@@ -262,6 +262,7 @@ def acceptSellRequest(request, id):
         user = request.user
         data = request.data
         sell_request = SellRequest.objects.get(id=id)
+        print("date", data['pickupDate'])
 
         order = Order.objects.create(
             sellRequest=sell_request,
@@ -270,12 +271,13 @@ def acceptSellRequest(request, id):
             acceptedUser=user,
             acceptedDate=datetime.today()
         )
+        print("order: ",order)
 
         sell_request.requestStatus="Accepted"
         sell_request.save()
         
             
-        serializer = OrderSerializer(order, many=False)    
+        serializer = SellRequestWithDistanceSerializer(sell_request, many=False, context={'user_id': user.id})    
         return Response(serializer.data)
     except Exception as e:
         return Response(e)
@@ -288,7 +290,7 @@ def getOrdersToCompleteTodayForScraperStaff(request):
         staff = ScraperStaffProfile.objects.get(staff__id=user.id)
         print("pooo", staff.staffOf.id)
         orders = Order.objects.filter(requestStatus="Accepted", acceptedUser=staff.staffOf.id)
-        serializer = OrderSerializerWithDistance(orders, many=True)    
+        serializer = OrderSerializerWithDistance(orders, many=True, context={'user_id': staff.staffOf.id})    
         return Response(serializer.data)
     except Exception as e:
         print(e)
