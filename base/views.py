@@ -362,7 +362,7 @@ def createSellRequest(request):
             requestedUser=user,
         )
         for i in data['items']:
-            item = Item.objects.get(id=i.id)
+            item = Item.objects.get(id=i['id'])
             sell_request.items.add(item)
 
         serializer = SellRequestSerializer(sell_request, many=False)
