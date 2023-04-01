@@ -355,7 +355,7 @@ def createSellRequest(request):
     try:
         user = request.user
         data = request.data
-        address = Address.objects.get(user__id=data['addressId'])
+        address = Address.objects.get(id=data['addressId'], user__id=user.id)
         sell_request = SellRequest.objects.create(
             pickupAddress=address,
             requestStatus="Requested",
@@ -363,7 +363,7 @@ def createSellRequest(request):
         )
         for i in data['items']:
             item = Item.objects.get(id=i.id)
-            sell_request.items.push(item)
+            sell_request.items.add(item)
 
         serializer = SellRequestSerializer(sell_request, many=False)
         return Response(serializer.data)
