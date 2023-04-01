@@ -1,6 +1,7 @@
 
+from unicodedata import category
 from rest_framework import serializers
-from .models import Category, CustomUser, ScraperStaffProfile, Item, SellRequest, Address, Order, ScraperAdminProfile
+from .models import Category, CustomUser, ScraperStaffProfile, Item, SellRequest, Address, Order, ScraperAdminProfile, Review
 from rest_framework_simplejwt.tokens import RefreshToken
 from geopy.distance import distance
 
@@ -32,13 +33,27 @@ class ScraperStaffProfileSerializer(UserSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"     
+        fields = "__all__"  
 
 class ItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     class Meta:
         model = Item
-        fields = "__all__"   
+        fields = "__all__"        
+
+class CategorySerializerWithItems(CategorySerializer):
+    items = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Category
+        fields = "__all__" 
+
+    def get_items(self, obj):
+        item_list = Item.objects.filter(category__id=obj.id) 
+        serializer = ItemSerializer(item_list, many=True)
+        return serializer.data     
+
+       
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -120,6 +135,11 @@ class OrderSerializerWithDistance(OrderSerializer):
 
         dist = distance((accepted_user_latitude, accepted_user_longitude), (requested_user_latitude, requested_user_longitude)).km
         return dist 
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = "__all__"         
 
       
 

@@ -1,13 +1,14 @@
 
+from unicodedata import category
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import OrderSerializerWithDistance, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer
+from .serializers import OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
 
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
-from .models import Address, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem
+from .models import Address, Category, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem, Review
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, date
 
@@ -295,6 +296,47 @@ def getOrdersToCompleteTodayForScraperStaff(request):
     except Exception as e:
         print(e)
         return Response(e)
+
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def getAllCategoryAndItems(request):
+    try:
+        category = Category.objects.all()
+        serializer = CategorySerializerWithItems(category, many=True)
+        return Response(serializer.data)
+    except:
+        return Response("No Category Found")     
+
+# register normal user
+@api_view(['POST'])    
+def registerScrapSeller(request):
+    data = request.data
+    try:
+        user = CustomUser.objects.create(
+            first_name=data['name'],
+            username=data['username'],
+            password=make_password(data['password']),
+            userType="ScrapSeller"
+        )
+        user.is_active=True
+        user.save()
+        serializer = UserSerializerWithToken(user, many=False)
+    except:
+        message = {'detail':'user with this username already exist'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)    
+    return Response(serializer.data)    
+
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def getAllReviews(request):
+    try:
+        reviews = Review.objects.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+    except:
+        return Response("No Reviews Found")         
 
 
      

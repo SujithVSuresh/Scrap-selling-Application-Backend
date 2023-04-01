@@ -1,6 +1,7 @@
 
+from webbrowser import get
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff
+from .views import MyTokenObtainPairView, registerScraper, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews
 
 
 urlpatterns = [
@@ -19,5 +20,10 @@ urlpatterns = [
     path('scraper/admin/complete-order/<int:id>/', completeOrder, name='completeOrder'),
     path('scraper/admin/cancel-order/<int:id>/', cancelOrder, name='cancelOrder'),
     path('scraper/admin/accept-sell-request/<int:id>/', acceptSellRequest, name='acceptSellRequest'),
+
+    path('category/items/', getAllCategoryAndItems, name='getAllCategoryAndItems'),
+    path('register/user/', registerScrapSeller, name='registerScrapSeller'),
+    path('user/review/', getAllReviews, name='getAllReviews'),
+
 
 ]
