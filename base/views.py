@@ -2,7 +2,7 @@
 from unicodedata import category
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
+from .serializers import AddressSerializer, OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
 
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -336,7 +336,39 @@ def getAllReviews(request):
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
     except:
-        return Response("No Reviews Found")         
+        return Response("No Reviews Found") 
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def getPickupAddresses(request):
+    try:
+        user = request.user
+        addresses = Address.objects.filter(user__id=user.id)
+        serializer = AddressSerializer(addresses, many=True)
+        return Response(serializer.data)
+    except:
+        return Response("No Reviews Found") 
+
+@api_view(['POST']) 
+@permission_classes([IsAuthenticated])
+def createSellRequest(request):
+    try:
+        user = request.user
+        data = request.data
+        address = Address.objects.get(user__id=data['addressId'])
+        sell_request = SellRequest.objects.create(
+            pickupAddress=address,
+            requestStatus="Requested",
+            requestedUser=user,
+        )
+        for i in data['items']:
+            item = Item.objects.get(id=i.id)
+            sell_request.items.push(item)
+
+        serializer = SellRequestSerializer(sell_request, many=False)
+        return Response(serializer.data)
+    except:
+        return Response("No Reviews Found")                         
 
 
      
