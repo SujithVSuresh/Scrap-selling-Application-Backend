@@ -368,7 +368,43 @@ def createSellRequest(request):
         serializer = SellRequestSerializer(sell_request, many=False)
         return Response(serializer.data)
     except:
-        return Response("No Reviews Found")                         
+        return Response("No Reviews Found") 
+
+@api_view(['POST']) 
+@permission_classes([IsAuthenticated])
+def createPickupAddresses(request):
+    try:
+        user = request.user
+        data = request.data
+        addresses = Address.objects.create(
+            user = user,
+            addressName=data['addressName'],
+            city=data['city'],
+            village=data['village'],
+            postalCode=data['postalCode'],
+            landmark=data['landmark'],
+            houseOrFlatNo=data['houseOrFlatNo'],
+            latitude=data['latitude'],
+            longitude=data['longitude'],
+            phoneNumber=data['phoneNumber']
+        )
+        serializer = AddressSerializer(addresses, many=False)
+        return Response(serializer.data)
+    except:
+        return Response("Address Not Created") 
+
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def getAllSellRequestOrders(request):
+    try:
+        user = request.user
+
+        sell_requests = SellRequest.objects.filter(requestedUser__id=user.id)
+        serializer = SellRequestSerializer(sell_requests, many=True)
+        return Response(serializer.data)
+    except:
+        return Response("Address Not Created")                                         
 
 
      
