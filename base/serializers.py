@@ -155,9 +155,9 @@ class SellRequestSerializerWithOrder(SellRequestSerializer):
         fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser", "order"] 
 
     def get_order(self, obj):
-        order = Order.objects.get(sellRequest__id=obj.id)
-        if order.exists():
-            serializer = OrderSerializerForSellRequest(order, many=False)
+        sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
+        if sellrequest_order.exists():
+            serializer = OrderSerializerForSellRequest(sellrequest_order, many=False)
             return serializer.data
         else:
             return None              
