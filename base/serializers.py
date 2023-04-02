@@ -139,7 +139,27 @@ class OrderSerializerWithDistance(OrderSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = "__all__"         
+        fields = "__all__"       
+
+class OrderSerializerForSellRequest(OrderSerializer):
+    
+    class Meta:
+        model = Order
+        fields = ["id", "requestStatus", "pickupDate","acceptedUser", "totalPrice", "completedUser", "completedDate", "acceptedDate"] 
+
+class SellRequestSerializerWithOrder(SellRequestSerializer):
+
+    class Meta:
+        model = SellRequest
+        fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser", "order"] 
+
+    def get_order(self, obj):
+        order = Order.objects.get(sellRequest__id=obj.id)
+        if order.exists():
+            serializer = OrderSerializerForSellRequest(order, many=False)
+            return serializer.data
+        else:
+            return None              
 
       
 

@@ -2,7 +2,7 @@
 from unicodedata import category
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import AddressSerializer, OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
+from .serializers import AddressSerializer, SellRequestSerializerWithOrder, OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
 
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -401,7 +401,7 @@ def getAllSellRequestOrders(request):
         user = request.user
 
         sell_requests = SellRequest.objects.filter(requestedUser__id=user.id)
-        serializer = SellRequestSerializer(sell_requests, many=True)
+        serializer = SellRequestSerializerWithOrder(sell_requests, many=True)
         return Response(serializer.data)
     except:
         return Response("Address Not Created")                                         
