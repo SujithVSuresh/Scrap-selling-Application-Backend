@@ -148,6 +148,7 @@ class OrderSerializerForSellRequest(OrderSerializer):
         fields = ["id", "requestStatus", "pickupDate","acceptedUser", "totalPrice", "completedUser", "completedDate", "acceptedDate"] 
 
 class SellRequestSerializerWithOrder(SellRequestSerializer):
+    order = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = SellRequest
