@@ -28,7 +28,14 @@ class ScraperStaffProfileSerializer(UserSerializer):
     staffOf = UserSerializer(read_only=True)
     class Meta:
         model = ScraperStaffProfile
-        fields = "__all__"   
+        fields = "__all__" 
+
+class ScraperAdminProfileSerializer(UserSerializer):
+    user = UserSerializer()
+    
+    class Meta:
+        model = ScraperAdminProfile
+        fields = "__all__"           
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -142,10 +149,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = "__all__"       
 
 class OrderSerializerForSellRequest(OrderSerializer):
+    acceptedUser = serializers.SerializerMethodField(read_only=True)
+    completedUser = UserSerializer(read_only=True)
     
     class Meta:
         model = Order
         fields = ["id", "requestStatus", "pickupDate","acceptedUser", "totalPrice", "completedUser", "completedDate", "acceptedDate"] 
+    
+    def get_acceptedUser(self, obj):
+        #sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
+        try:
+            accepted_user = ScraperAdminProfile.objects.get(user__id=obj.acceptedUser.id)
+            serializer = ScraperAdminProfileSerializer(accepted_user, many=False)
+            return serializer.data
+        except Order.DoesNotExist:  
+            return None
 
 class SellRequestSerializerWithOrder(SellRequestSerializer):
     order = serializers.SerializerMethodField(read_only=True)
@@ -155,12 +173,14 @@ class SellRequestSerializerWithOrder(SellRequestSerializer):
         fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser", "order"] 
 
     def get_order(self, obj):
-        sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
-        if sellrequest_order.exists():
+        #sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
+        try:
+            sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
             serializer = OrderSerializerForSellRequest(sellrequest_order, many=False)
             return serializer.data
-        else:
-            return None              
+        except Order.DoesNotExist:  
+            return None
+                      
 
       
 

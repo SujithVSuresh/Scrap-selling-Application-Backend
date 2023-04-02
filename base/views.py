@@ -403,7 +403,8 @@ def getAllSellRequestOrders(request):
         sell_requests = SellRequest.objects.filter(requestedUser__id=user.id)
         serializer = SellRequestSerializerWithOrder(sell_requests, many=True)
         return Response(serializer.data)
-    except e as Exception:
+    except Exception as e:
+        print("e", e)
         return Response({"error":e})                                         
 
 
