@@ -1,7 +1,7 @@
 
 from webbrowser import get
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews
+from .views import MyTokenObtainPairView, registerScraper, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, createOrderReview
 
 
 urlpatterns = [
@@ -28,6 +28,7 @@ urlpatterns = [
     path('user/create-sell-request/', createSellRequest, name='createSellRequest'),
     path('user/create-pickup-address/', createPickupAddresses, name='createPickupAddresses'),
     path('user/sellrequest-orders/', getAllSellRequestOrders, name='getAllSellRequestOrders'),
+    path('user/sellrequest-orders/create-review/', createOrderReview, name='createOrderReview'),
 
 
 ]
