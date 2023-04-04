@@ -151,16 +151,25 @@ class ReviewSerializer(serializers.ModelSerializer):
 class OrderSerializerForSellRequest(OrderSerializer):
     acceptedUser = serializers.SerializerMethodField(read_only=True)
     completedUser = UserSerializer(read_only=True)
+    review = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Order
-        fields = ["id", "requestStatus", "pickupDate","acceptedUser", "totalPrice", "completedUser", "completedDate", "acceptedDate"] 
+        fields = ["id", "requestStatus", "pickupDate","acceptedUser", "totalPrice", "completedUser", "completedDate", "acceptedDate", "review"] 
     
     def get_acceptedUser(self, obj):
         #sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
         try:
             accepted_user = ScraperAdminProfile.objects.get(user__id=obj.acceptedUser.id)
             serializer = ScraperAdminProfileSerializer(accepted_user, many=False)
+            return serializer.data
+        except Order.DoesNotExist:  
+            return None
+
+    def get_review(self, obj):
+        try:
+            review = Review.objects.get(order__id=obj.id)
+            serializer = ReviewSerializer(review, many=False)
             return serializer.data
         except Order.DoesNotExist:  
             return None
