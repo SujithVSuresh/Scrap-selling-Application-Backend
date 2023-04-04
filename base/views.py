@@ -405,7 +405,29 @@ def getAllSellRequestOrders(request):
         return Response(serializer.data)
     except Exception as e:
         print("e", e)
-        return Response({"error":e})                                         
+        return Response({"error":e})   
+
+
+@api_view(['POST']) 
+@permission_classes([IsAuthenticated])
+def createOrderReview(request):
+    try:
+        user = request.user
+        data = request.data
+
+        order = Order.objects.get(id=data['orderId'])
+
+        review = Review.objects.create(
+            order=order,
+            reviewedUser=user,
+            reviewText=data['review']
+        )
+
+        serializer = ReviewSerializer(review, many=False)
+        return Response(serializer.data)
+    except Exception as e:
+        print("e", e)
+        return Response({"error":e})                                                 
 
 
      
