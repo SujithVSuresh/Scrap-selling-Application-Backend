@@ -414,13 +414,11 @@ def manageOrderReview(request):
     try:
         user = request.user
         data = request.data
-
         order = Order.objects.get(id=data['orderId'])
 
         if request.method=='DELETE':
             review = Review.objects.get(order__id=order.id)
             review.delete()
-
         if request.method=='POST':
             review = Review.objects.create(
                 order=order,
