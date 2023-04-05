@@ -28,7 +28,7 @@ urlpatterns = [
     path('user/create-sell-request/', createSellRequest, name='createSellRequest'),
     path('user/create-pickup-address/', createPickupAddresses, name='createPickupAddresses'),
     path('user/sellrequest-orders/', getAllSellRequestOrders, name='getAllSellRequestOrders'),
-    path('user/sellrequest-orders/manage-review/', manageOrderReview, name='createOrderReview'),
+    path('user/sellrequest-orders/manage-review/<int:id>/', manageOrderReview, name='createOrderReview'),
 
 
 ]

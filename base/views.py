@@ -410,11 +410,11 @@ def getAllSellRequestOrders(request):
 
 @api_view(['POST', 'DELETE']) 
 @permission_classes([IsAuthenticated])
-def manageOrderReview(request):
+def manageOrderReview(request, id):
     try:
         user = request.user
         data = request.data
-        order = Order.objects.get(id=data['orderId'])
+        order = Order.objects.get(id=id)
 
         if request.method=='DELETE':
             review = Review.objects.get(order__id=order.id)
