@@ -430,7 +430,32 @@ def manageOrderReview(request, id):
         return Response(serializer.data)
     except Exception as e:
         print("e", e)
-        return Response({"error":e})                                                 
+        return Response({"error":e})  
+
+
+@api_view(['PUT']) 
+@permission_classes([IsAuthenticated])
+def cancelSellRequest(request, id):
+    try:
+        user = request.user
+
+        sell_request = SellRequest.objects.get(id=id)
+        sell_request.requestStatus="Cancelled"
+        sell_request.save()
+        
+        try:
+            order = Order.objects.get(sellRequest__id=sell_request.id)
+            order.requestStatus = "Order cancelled"
+            order.save()
+        except Order.DoesNotExist:
+            pass
+
+
+        serializer = SellRequestSerializerWithOrder(sell_request, many=False)
+        return Response(serializer.data)
+    except Exception as e:
+        print("e", e)
+        return Response({"error":e})                                                         
 
 
      

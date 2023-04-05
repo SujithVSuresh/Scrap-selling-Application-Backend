@@ -1,7 +1,7 @@
 
 from webbrowser import get
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
+from .views import MyTokenObtainPairView, registerScraper, cancelSellRequest, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
 
 
 urlpatterns = [
@@ -29,6 +29,7 @@ urlpatterns = [
     path('user/create-pickup-address/', createPickupAddresses, name='createPickupAddresses'),
     path('user/sellrequest-orders/', getAllSellRequestOrders, name='getAllSellRequestOrders'),
     path('user/sellrequest-orders/manage-review/<int:id>/', manageOrderReview, name='createOrderReview'),
+    path('user/sellrequest-order/cancel/', cancelSellRequest, name='cancelSellRequest'),
 
 
 ]
