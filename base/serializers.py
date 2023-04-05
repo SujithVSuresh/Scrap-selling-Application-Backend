@@ -171,7 +171,7 @@ class OrderSerializerForSellRequest(OrderSerializer):
             review = Review.objects.get(order__id=obj.id)
             serializer = ReviewSerializer(review, many=False)
             return serializer.data
-        except Order.DoesNotExist:  
+        except Review.DoesNotExist:  
             return None
 
 class SellRequestSerializerWithOrder(SellRequestSerializer):
