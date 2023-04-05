@@ -408,20 +408,24 @@ def getAllSellRequestOrders(request):
         return Response({"error":e})   
 
 
-@api_view(['POST']) 
+@api_view(['POST', 'DELETE']) 
 @permission_classes([IsAuthenticated])
-def createOrderReview(request):
+def manageOrderReview(request):
     try:
         user = request.user
         data = request.data
 
         order = Order.objects.get(id=data['orderId'])
 
-        review = Review.objects.create(
-            order=order,
-            reviewedUser=user,
-            reviewText=data['review']
-        )
+        if request.method=='DELETE':
+            review = Review.objects.get(order__id=order.id)
+            review.delete()
+        if request.method=='POST':
+            review = Review.objects.create(
+                order=order,
+                reviewedUser=user,
+                reviewText=data['review']
+            )
 
         serializer = ReviewSerializer(review, many=False)
         return Response(serializer.data)
