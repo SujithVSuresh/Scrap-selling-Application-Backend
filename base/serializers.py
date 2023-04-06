@@ -9,7 +9,7 @@ from geopy.distance import distance
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', "first_name", 'is_active', 'userType']
+        fields = ['id', 'username', "first_name", 'is_active', 'userType', "date_joined"]
 
 
 class UserSerializerWithToken(UserSerializer):
@@ -75,12 +75,14 @@ class SellRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SellRequest
-        fields = ["id", "data", "pickupAddress", "requestedDate", "requestStatus", "requestedUser"] 
+        fields = ["id", "data", "requestedDate", "requestStatus", "requestedUser", "pickupAddress"] 
 
     def get_data(self, obj):
         items = obj.items.all()
         serializer = ItemSerializer(items, many=True)
-        return serializer.data
+        return serializer.data    
+
+    
 
 
 class SellRequestWithDistanceSerializer(SellRequestSerializer):
@@ -189,6 +191,85 @@ class SellRequestSerializerWithOrder(SellRequestSerializer):
             return serializer.data
         except Order.DoesNotExist:  
             return None
+
+
+
+class UserSerializerForScraperAdmin(UserSerializer):
+    profileInfo = serializers.SerializerMethodField(read_only=True)
+    staffs = serializers.SerializerMethodField(read_only=True)
+    acceptedOrders = serializers.SerializerMethodField(read_only=True)
+    completedOrders = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ["id", "username", "first_name", "date_joined", "is_active", "profileInfo", "staffs", "acceptedOrders", "completedOrders"] 
+
+
+    def get_profileInfo(self, obj):
+        try:
+            profile = ScraperAdminProfile.objects.get(user__id=obj.id)
+            serializer = ScraperAdminProfileSerializer(profile, many=False)
+            return serializer.data
+        except ScraperAdminProfile.DoesNotExist:  
+            return None   
+
+    def get_staffs(self, obj):
+        try:
+            profile = ScraperAdminProfile.objects.get(user__id=obj.id)
+            staffs = profile.staffs.all().count()
+            return staffs
+        except ScraperAdminProfile.DoesNotExist:  
+            return None
+
+    def get_acceptedOrders(self, obj):
+        try:
+            orders = Order.objects.filter(requestStatus__in=["Accepted"], acceptedUser__id=obj.id)
+            order_count = orders.count()
+            return order_count
+        except ScraperAdminProfile.DoesNotExist:  
+            return None
+
+    def get_completedOrders(self, obj):
+        try:
+            orders = Order.objects.filter(requestStatus__in=["Completed"], acceptedUser__id=obj.id)
+            order_count = orders.count()
+            return order_count
+        except ScraperAdminProfile.DoesNotExist:  
+            return None 
+
+
+class UserSerializerForScraperStaff(UserSerializer):
+    staffProfile = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ["id", "username", "first_name", "date_joined", "is_active", "staffProfile"] 
+
+
+    def get_staffProfile(self, obj):
+        try:
+            profile = ScraperStaffProfile.objects.get(staff__id=obj.id)
+            serializer =  ScraperStaffProfileSerializer(profile, many=False)
+            return serializer.data
+        except ScraperStaffProfile.DoesNotExist:  
+            return None  
+
+
+class UserSerializerForScrapSeller(UserSerializer):
+    sellRequests = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ["id", "username", "first_name", "date_joined", "is_active", "sellRequests"] 
+
+
+    def get_sellRequests(self, obj):
+        try:
+            sell_requests = SellRequest.objects.filter(requestedUser__id=obj.id)
+            sell_requests_count = sell_requests.count()
+            return sell_requests_count
+        except SellRequest.DoesNotExist:  
+            return None               
+                                                            
                       
 
       

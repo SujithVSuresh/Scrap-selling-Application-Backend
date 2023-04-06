@@ -92,6 +92,7 @@ STATUS = (
        ("Accepted", "Accepted"),
        ("Completed", "Completed"),
        ("Cancelled", "Cancelled"),
+       ("Disabled", "Disabled"),
 ) 
 
 class SellRequest(models.Model):
@@ -111,6 +112,7 @@ ORDER_STATUS = (
        ("Completed", "Completed"),
        ("Request cancelled", "Request cancelled"),
        ("Order cancelled", "Order cancelled"),
+       ("Disabled", "Disabled"),
 ) 
 
 class Order(models.Model):

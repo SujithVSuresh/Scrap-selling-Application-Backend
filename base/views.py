@@ -1,8 +1,9 @@
 
+from ast import Pass
 from unicodedata import category
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import AddressSerializer, SellRequestSerializerWithOrder, OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
+from .serializers import AddressSerializer, UserSerializerForScraperAdmin,  UserSerializerForScrapSeller, UserSerializerForScraperStaff, CategorySerializer, ItemSerializer, SellRequestSerializerWithOrder, OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
 
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -10,7 +11,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from .models import Address, Category, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem, Review
 from rest_framework.permissions import IsAuthenticated
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 # Create your views here.
 
@@ -445,7 +446,7 @@ def cancelSellRequest(request, id):
         
         try:
             order = Order.objects.get(sellRequest__id=sell_request.id)
-            order.requestStatus = "Order cancelled"
+            order.requestStatus = "Request cancelled"
             order.save()
         except Order.DoesNotExist:
             pass
@@ -455,7 +456,189 @@ def cancelSellRequest(request, id):
         return Response(serializer.data)
     except Exception as e:
         print("e", e)
-        return Response({"error":e})                                                         
+        return Response({"error":e})     
+
+@api_view(['GET', 'POST', 'PUT']) 
+@permission_classes([IsAuthenticated])
+def itemManagementForAdmin(request):
+    if request.method == 'GET':
+        items = Item.objects.all()
+        serializer =  ItemSerializer(items, many=True)
+        return Response(serializer.data)
+
+    if request.method == "POST":
+        data = request.data
+        category = Category.objects.get(id=data['categoryId'])
+        item = Item.objects.create(
+            itemName=data['itemName'],
+            rate=data['rate'],
+            category=category,
+            unit=data['unit']
+        )
+        serializer =  ItemSerializer(item, many=False) 
+        return Response(serializer.data)
+
+    if request.method == "PUT":
+        data = request.data
+
+        item = Item.objects.get(id=data['itemId'])
+        category = Category.objects.get(id=data['categoryId'])
+
+        item.itemName=data['itemName'],
+        item.rate=data['rate'],
+        item.category=category,
+        item.unit=data['unit'],
+        item.save()
+   
+        serializer = ItemSerializer(item, many=False) 
+        return Response(serializer.data)
+
+
+@api_view(['GET', 'POST', 'PUT']) 
+@permission_classes([IsAuthenticated])
+def categoryManagementForAdmin(request):
+    try:
+        if request.method == 'GET':
+            categories = Category.objects.all()
+            serializer = CategorySerializer(categories, many=True)
+            return Response(serializer.data)
+
+        if request.method == "POST":
+            data = request.data
+            category = Category.objects.create(
+                categoryName=data['categoryName'],
+            )
+            serializer =  CategorySerializer(category, many=False)
+            return Response(serializer.data)
+
+        if request.method == "PUT":
+            data = request.data
+
+            category = Category.objects.get(id=data['categoryId'])
+
+            category.categoryName=data['categoryName'],
+            category.save()
+   
+            serializer =  ItemSerializer(category, many=False) 
+            return Response(serializer.data)
+    except Category.DoesNotExist:
+        return Response({"details":"No category Exist"})   
+
+
+@api_view(['GET', 'PUT']) 
+@permission_classes([IsAuthenticated])
+def scrapBuyerAdminManagementForAdmin(request):
+    try:
+        if request.method=="GET":
+            scraper_admin = CustomUser.objects.filter(userType="ScraperAdmin") 
+            serializer = UserSerializerForScraperAdmin(scraper_admin, many=True)
+
+        if request.method=="PUT":
+            data = request.data
+            user = CustomUser.objects.get(id=data['userId'])
+            user.is_active = False
+            user.save()
+            serializer = UserSerializerForScraperAdmin(user, many=False)
+            
+        return Response(serializer.data)
+    except CustomUser.DoesNotExist:
+        return Response({"Details":"No user found"})
+
+@api_view(['GET', 'PUT']) 
+@permission_classes([IsAuthenticated])
+def scrapBuyerStaffManagementForAdmin(request):
+    try:
+        if request.method=="GET":
+            scraper_admin = CustomUser.objects.filter(userType="ScraperStaff") 
+            serializer = UserSerializerForScraperStaff(scraper_admin, many=True)
+
+        if request.method=="PUT":
+            data = request.data
+            user = CustomUser.objects.get(id=data['userId'])
+            user.is_active = False
+            user.save()
+            serializer = UserSerializerForScraperStaff(user, many=False)
+            
+        return Response(serializer.data)
+    except CustomUser.DoesNotExist:
+        return Response({"Details":"No user found"})
+
+@api_view(['GET', 'PUT']) 
+@permission_classes([IsAuthenticated])
+def scrapSellerManagementForAdmin(request):
+    try:
+        if request.method=="GET":
+            scrap_seller = CustomUser.objects.filter(userType="ScrapSeller") 
+            serializer = UserSerializerForScrapSeller(scrap_seller, many=True)
+
+        if request.method=="PUT":
+            data = request.data
+            user = CustomUser.objects.get(id=data['userId'])
+            user.is_active = False
+            user.save()
+            serializer = UserSerializerForScrapSeller(user, many=False)
+            
+        return Response(serializer.data)
+    except CustomUser.DoesNotExist:
+        return Response({"Details":"No user found"})
+
+@api_view(['GET', 'PUT']) 
+@permission_classes([IsAuthenticated])
+def sellRequestManagementForAdmin(request):
+    try:
+        if request.method=="GET":
+            sell_requests = SellRequest.objects.all()
+            serializer = SellRequestSerializer(sell_requests, many=True)
+
+        if request.method=="PUT":
+            data = request.data
+            sell_request = SellRequest.objects.get(id=data['sellRequestId'])
+            sell_request.requestStatus = "Disabled"
+            sell_request.save()
+
+            serializer = SellRequestSerializer(sell_request, many=False)
+            
+        return Response(serializer.data)
+    except SellRequest.DoesNotExist:
+        return Response({"Details":"No order request found"}) 
+
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def orderManagementForAdmin(request):
+    try:
+        if request.method=="GET":
+            orders = Order.objects.all()
+            serializer = OrderSerializer(orders, many=True)
+            
+        return Response(serializer.data)
+    except SellRequest.DoesNotExist:
+        return Response({"Details":"No order found"})  
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def statsForAdmin(request):
+    try:
+        if request.method=="GET":
+            orders = Order.objects.all()
+            total_order_count = orders.count()
+            now = datetime.now()
+            seven_days_ago = datetime.now()-timedelta(days=7)
+
+            orders_in_last_seven_days = Order.objects.filter(acceptedDate__range=[seven_days_ago, now])
+            orders_in_last_seven_days_count = orders_in_last_seven_days.count()
+
+            users = CustomUser.objects.all()
+            total_users_count = users.count()
+
+            newusers_in_last_seven_days = CustomUser.objects.filter(date_joined__range=[seven_days_ago, now])
+            newusers_in_last_seven_days_count = newusers_in_last_seven_days.count()
+
+            
+        return Response({"totalOrders":total_order_count, "totalOrdersInLastSevenDays":orders_in_last_seven_days_count, "totalUsers":total_users_count, "totalUsersInlastSevenDays":newusers_in_last_seven_days_count})
+    except SellRequest.DoesNotExist:
+        return Response({"Details":"No order found"})                                         
+
 
 
      

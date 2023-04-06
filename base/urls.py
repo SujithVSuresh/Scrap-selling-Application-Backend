@@ -1,7 +1,7 @@
 
 from webbrowser import get
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, cancelSellRequest, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
+from .views import MyTokenObtainPairView, registerScraper, orderManagementForAdmin, statsForAdmin, sellRequestManagementForAdmin, scrapSellerManagementForAdmin, scrapBuyerAdminManagementForAdmin, scrapBuyerStaffManagementForAdmin, categoryManagementForAdmin, itemManagementForAdmin, cancelSellRequest, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
 
 
 urlpatterns = [
@@ -30,6 +30,15 @@ urlpatterns = [
     path('user/sellrequest-orders/', getAllSellRequestOrders, name='getAllSellRequestOrders'),
     path('user/sellrequest-orders/manage-review/<int:id>/', manageOrderReview, name='createOrderReview'),
     path('user/sellrequest-order/cancel/<int:id>/', cancelSellRequest, name='cancelSellRequest'),
+
+    path('admin/item-management/', itemManagementForAdmin, name='itemManagementForAdmin'),
+    path('admin/category-management/', categoryManagementForAdmin, name='categoryManagementForAdmin'),
+    path('admin/scraper-admin-management/', scrapBuyerAdminManagementForAdmin, name='scrapBuyerAdminManagementForAdmin'),
+    path('admin/scraper-staff-management/', scrapBuyerStaffManagementForAdmin, name='scrapBuyerStaffManagementForAdmin'),
+    path('admin/scrape-seller-management/', scrapSellerManagementForAdmin, name='scrapSellerManagementForAdmin'),
+    path('admin/sellrequest-management/', sellRequestManagementForAdmin, name='sellRequestManagementForAdmin'),
+    path('admin/order-management/', orderManagementForAdmin, name='orderManagementForAdmin'),
+    path('admin/stats/', statsForAdmin, name='statsForAdmin'),
 
 
 ]
