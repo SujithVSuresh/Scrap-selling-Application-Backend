@@ -505,7 +505,11 @@ def scrapBuyerAdminManagementForAdmin(request):
         if request.method=="PUT":
             data = request.data
             user = CustomUser.objects.get(id=data['userId'])
-            user.is_active = False
+            if user.is_active==True:
+                user.is_active = False
+            else:
+                user.is_active = True
+
             user.save()
             serializer = UserSerializerForScraperAdmin(user, many=False)
             
@@ -524,7 +528,10 @@ def scrapBuyerStaffManagementForAdmin(request):
         if request.method=="PUT":
             data = request.data
             user = CustomUser.objects.get(id=data['userId'])
-            user.is_active = False
+            if user.is_active==True:
+                user.is_active = False
+            else:
+                user.is_active = True
             user.save()
             serializer = UserSerializerForScraperStaff(user, many=False)
             
@@ -543,7 +550,10 @@ def scrapSellerManagementForAdmin(request):
         if request.method=="PUT":
             data = request.data
             user = CustomUser.objects.get(id=data['userId'])
-            user.is_active = False
+            if user.is_active==True:
+                user.is_active = False
+            else:
+                user.is_active = True
             user.save()
             serializer = UserSerializerForScrapSeller(user, many=False)
             
@@ -562,8 +572,31 @@ def sellRequestManagementForAdmin(request):
         if request.method=="PUT":
             data = request.data
             sell_request = SellRequest.objects.get(id=data['sellRequestId'])
-            sell_request.requestStatus = "Disabled"
-            sell_request.save()
+            if sell_request.requestStatus=="Accepted":
+
+                order = Order.objects.get(sellRequest__id=sell_request.id)
+                order.requestStatus = "Disabled"
+                order.save()
+
+                sell_request.requestStatus="Disabled"
+                sell_request.save()
+
+            if sell_request.requestStatus=="Requested":
+                sell_request.requestStatus="Disabled"
+                sell_request.save()
+
+            if sell_request.requestStatus=="Disabled":
+                try:
+                    order = Order.objects.get(sellRequest__id=sell_request.id)
+                    order.requestStatus = "Accepted"
+                    order.save()
+
+                    sell_request.requestStatus="Accepted"
+                    sell_request.save()
+                except Order.DoesNotExist:
+
+                    sell_request.requestStatus="Requested"
+                    sell_request.save()        
 
             serializer = SellRequestSerializer(sell_request, many=False)
             
