@@ -1,6 +1,5 @@
 
-from ast import Pass
-from unicodedata import category
+from operator import truediv
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import AddressSerializer, UserSerializerForScraperAdmin,  UserSerializerForScrapSeller, UserSerializerForScraperStaff, CategorySerializer, ItemSerializer, SellRequestSerializerWithOrder, OrderSerializerWithDistance, ReviewSerializer, ScraperStaffProfileSerializer, UserSerializerWithToken, UserSerializer, ScraperStaffProfile, SellRequestSerializer, OrderSerializer, SellRequestWithDistanceSerializer, CategorySerializerWithItems
@@ -12,6 +11,9 @@ from rest_framework import status
 from .models import Address, Category, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem, Review
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, date, timedelta
+
+
+
 
 # Create your views here.
 
@@ -339,16 +341,6 @@ def getAllReviews(request):
     except:
         return Response("No Reviews Found") 
 
-@api_view(['GET']) 
-@permission_classes([IsAuthenticated])
-def getPickupAddresses(request):
-    try:
-        user = request.user
-        addresses = Address.objects.filter(user__id=user.id)
-        serializer = AddressSerializer(addresses, many=True)
-        return Response(serializer.data)
-    except:
-        return Response("No Reviews Found") 
 
 @api_view(['POST']) 
 @permission_classes([IsAuthenticated])
@@ -370,29 +362,6 @@ def createSellRequest(request):
         return Response(serializer.data)
     except:
         return Response("No Reviews Found") 
-
-@api_view(['POST']) 
-@permission_classes([IsAuthenticated])
-def createPickupAddresses(request):
-    try:
-        user = request.user
-        data = request.data
-        addresses = Address.objects.create(
-            user = user,
-            addressName=data['addressName'],
-            city=data['city'],
-            village=data['village'],
-            postalCode=data['postalCode'],
-            landmark=data['landmark'],
-            houseOrFlatNo=data['houseOrFlatNo'],
-            latitude=data['latitude'],
-            longitude=data['longitude'],
-            phoneNumber=data['phoneNumber']
-        )
-        serializer = AddressSerializer(addresses, many=False)
-        return Response(serializer.data)
-    except:
-        return Response("Address Not Created") 
 
 
 @api_view(['GET']) 
@@ -637,7 +606,68 @@ def statsForAdmin(request):
             
         return Response({"totalOrders":total_order_count, "totalOrdersInLastSevenDays":orders_in_last_seven_days_count, "totalUsers":total_users_count, "totalUsersInlastSevenDays":newusers_in_last_seven_days_count})
     except SellRequest.DoesNotExist:
-        return Response({"Details":"No order found"})                                         
+        return Response({"Details":"No order found"})
+        
+
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE']) 
+@permission_classes([IsAuthenticated])
+def pickupAddressManagementForSeller(request): 
+    user = request.user
+    try:
+        if request.method=="GET":
+            addresses = Address.objects.filter(user__id=user.id)
+            serializer = AddressSerializer(addresses, many=True)
+
+        if request.method=="POST":
+            data = request.data
+    
+            address = Address.objects.create(
+                user=user,
+                addressName=data['addressName'],
+                city=data['city'],
+                village=data['village'],
+                district=data['district'],
+                state=data['state'],
+                postalCode=data['postalCode'],
+                landmark=data['landmark'],
+                houseOrFlatNo=data['houseOrFlatNo'],
+                latitude=data['latitude'],
+                longitude=data['longitude'],
+                phoneNumber=data['phoneNumber']
+            )
+            serializer = AddressSerializer(address, many=False)
+
+        if request.method=="PUT":
+            address_id = request.query_params.get('id', None)
+            data = request.data
+            address = Address.objects.get(id=address_id)
+
+            address.addressName = data['addressName'],
+            address.city=data['city'],
+            address.village=data['village'],
+            address.district=data['district'],
+            address.state=data['state'],
+            address.postalCode=data['postalCode'],
+            address.landmark=data['landmark'],
+            address.houseOrFlatNo=data['houseOrFlatNo'],
+            address.phoneNumber=data['phoneNumber']
+
+            address.save()
+            serializer = AddressSerializer(address, many=False)
+            
+        if request.method=="DELETE":
+            address_id = request.query_params.get('id', None)
+            address = Address.objects.get(id=address_id)
+            address.delete()
+            serializer = AddressSerializer(address, many=False)    
+ 
+        return Response(serializer.data)
+    except SellRequest.DoesNotExist:
+        return Response({"Details":"No order found"}) 
+
+
+                                                      
 
 
 

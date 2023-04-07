@@ -1,7 +1,7 @@
 
 from webbrowser import get
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, orderManagementForAdmin, statsForAdmin, sellRequestManagementForAdmin, scrapSellerManagementForAdmin, scrapBuyerAdminManagementForAdmin, scrapBuyerStaffManagementForAdmin, categoryManagementForAdmin, itemManagementForAdmin, cancelSellRequest, createPickupAddresses, getAllSellRequestOrders, createSellRequest, getPickupAddresses, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
+from .views import MyTokenObtainPairView, registerScraper, pickupAddressManagementForSeller, orderManagementForAdmin, statsForAdmin, sellRequestManagementForAdmin, scrapSellerManagementForAdmin, scrapBuyerAdminManagementForAdmin, scrapBuyerStaffManagementForAdmin, categoryManagementForAdmin, itemManagementForAdmin, cancelSellRequest, getAllSellRequestOrders, createSellRequest, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
 
 
 urlpatterns = [
@@ -24,12 +24,12 @@ urlpatterns = [
     path('category/items/', getAllCategoryAndItems, name='getAllCategoryAndItems'),
     path('register/user/', registerScrapSeller, name='registerScrapSeller'),
     path('user/review/', getAllReviews, name='getAllReviews'),
-    path('user/pickup-addresses/', getPickupAddresses, name='getPickupAddresses'),
     path('user/create-sell-request/', createSellRequest, name='createSellRequest'),
-    path('user/create-pickup-address/', createPickupAddresses, name='createPickupAddresses'),
     path('user/sellrequest-orders/', getAllSellRequestOrders, name='getAllSellRequestOrders'),
     path('user/sellrequest-orders/manage-review/<int:id>/', manageOrderReview, name='createOrderReview'),
     path('user/sellrequest-order/cancel/<int:id>/', cancelSellRequest, name='cancelSellRequest'),
+    path('user/pickup-address-management/', pickupAddressManagementForSeller, name='pickupAddressManagementForSeller'),
+
 
     path('admin/item-management/', itemManagementForAdmin, name='itemManagementForAdmin'),
     path('admin/category-management/', categoryManagementForAdmin, name='categoryManagementForAdmin'),

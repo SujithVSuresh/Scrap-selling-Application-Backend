@@ -78,6 +78,8 @@ class Address(models.Model):
     addressName = models.CharField(max_length=200, null=True, blank=True)
     city = models.CharField(max_length=200, null=True, blank=True)
     village = models.CharField(max_length=200, null=True, blank=True)
+    district = models.CharField(max_length=100, null=True, blank=True)
+    state = models.CharField(max_length=100, null=True, blank=True)
     postalCode = models.CharField(max_length=200, null=True, blank=True)
     landmark = models.CharField(max_length=300, null=True, blank=True)
     houseOrFlatNo = models.CharField(max_length=200, null=True, blank=True)
