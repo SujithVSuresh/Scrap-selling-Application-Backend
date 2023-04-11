@@ -230,6 +230,14 @@ def completeOrder(request, id):
         sell_request.requestStatus = "Completed"
         sell_request.save()
 
+        for i in data['orderItems']:
+            item = Item.objects.get(id=i['id'])
+            OrderItem.objects.create(
+                order=order,
+                item=item,
+                quantity=i['qty']
+            )
+
   
             
         serializer = OrderSerializer(order, many=False)    

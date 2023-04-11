@@ -134,7 +134,6 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=False, blank=False)       
     item = models.ForeignKey(Item, on_delete=models.CASCADE, null=False, blank=False)  
     quantity = models.IntegerField(null=True, blank=False)
-    price = models.IntegerField(null=True, blank=False)
 
 
 class Review(models.Model):
