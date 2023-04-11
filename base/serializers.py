@@ -1,7 +1,7 @@
 
 from unicodedata import category
 from rest_framework import serializers
-from .models import Category, CustomUser, ScraperStaffProfile, Item, SellRequest, Address, Order, ScraperAdminProfile, Review
+from .models import Category, CustomUser, ScraperStaffProfile, Item, SellRequest, Address, Order, ScraperAdminProfile, Review,  OrderItem
 from rest_framework_simplejwt.tokens import RefreshToken
 from geopy.distance import distance
 
@@ -46,7 +46,13 @@ class ItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     class Meta:
         model = Item
-        fields = "__all__"        
+        fields = "__all__" 
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(read_only=True)
+    class Meta:
+        model = OrderItem
+        fields = "__all__"                
 
 class CategorySerializerWithItems(CategorySerializer):
     items = serializers.SerializerMethodField(read_only=True)
@@ -124,6 +130,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class OrderSerializerWithDistance(OrderSerializer):
     distance = serializers.SerializerMethodField(read_only=True)
+    orderItems = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Order
@@ -144,6 +151,15 @@ class OrderSerializerWithDistance(OrderSerializer):
 
         dist = distance((accepted_user_latitude, accepted_user_longitude), (requested_user_latitude, requested_user_longitude)).km
         return dist 
+
+    def get_orderItems(self, obj):
+        #sellrequest_order = Order.objects.get(sellRequest__id=obj.id)
+        try:
+            order_items = OrderItem.objects.filter(order__id=obj.id)
+            serializer = OrderItemSerializer(order_items, many=True)
+            return serializer.data
+        except OrderItem.DoesNotExist:  
+            return None    
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
