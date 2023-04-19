@@ -580,6 +580,7 @@ def sellRequestManagementForAdmin(request):
         if request.method=="PUT":
             data = request.data
             sell_request = SellRequest.objects.get(id=data['sellRequestId'])
+
             if sell_request.requestStatus=="Accepted":
 
                 order = Order.objects.get(sellRequest__id=sell_request.id)
@@ -588,10 +589,12 @@ def sellRequestManagementForAdmin(request):
 
                 sell_request.requestStatus="Disabled"
                 sell_request.save()
+                serializer = SellRequestSerializer(sell_request, many=False)
 
             if sell_request.requestStatus=="Requested":
                 sell_request.requestStatus="Disabled"
                 sell_request.save()
+                serializer = SellRequestSerializer(sell_request, many=False)
 
             if sell_request.requestStatus=="Disabled":
                 try:
@@ -606,7 +609,7 @@ def sellRequestManagementForAdmin(request):
                     sell_request.requestStatus="Requested"
                     sell_request.save()        
 
-            serializer = SellRequestSerializer(sell_request, many=False)
+                serializer = SellRequestSerializer(sell_request, many=False)
             
         return Response(serializer.data)
     except SellRequest.DoesNotExist:
