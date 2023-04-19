@@ -576,6 +576,7 @@ def sellRequestManagementForAdmin(request):
         if request.method=="GET":
             sell_requests = SellRequest.objects.all()
             serializer = SellRequestSerializer(sell_requests, many=True)
+            return Response(serializer.data)
 
         if request.method=="PUT":
             print("ooi1")
