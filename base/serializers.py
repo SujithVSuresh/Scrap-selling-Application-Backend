@@ -131,6 +131,8 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderSerializerWithDistance(OrderSerializer):
     distance = serializers.SerializerMethodField(read_only=True)
     orderItems = serializers.SerializerMethodField(read_only=True)
+    acceptedUser = UserSerializer(read_only=True)
+    completedUser = UserSerializer(read_only=True)
     
     class Meta:
         model = Order

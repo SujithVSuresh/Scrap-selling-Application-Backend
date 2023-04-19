@@ -11,7 +11,8 @@ from .managers import CustomUserManager
 USER_TYPE_CHOICES = (
       ('ScraperAdmin', 'ScraperAdmin'),
       ('ScraperStaff', 'ScraperStaff'),
-      ('ScrapSeller', 'ScrapSeller')
+      ('ScrapSeller', 'ScrapSeller'),
+      ('Admin', 'Admin')
     )
 class CustomUser(AbstractUser):
     email = None
