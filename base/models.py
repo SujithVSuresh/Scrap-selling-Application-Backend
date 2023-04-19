@@ -95,14 +95,14 @@ STATUS = (
        ("Accepted", "Accepted"),
        ("Completed", "Completed"),
        ("Cancelled", "Cancelled"),
-       ("Disabled", "Disabled"),
+       ("Disabled", "Disabled")
 ) 
 
 class SellRequest(models.Model):
     items = models.ManyToManyField(Item)
     requestedUser = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, blank=False, null=True, verbose_name='Requested User')
     requestedDate = models.DateField(auto_now_add=True)
-    requestStatus = models.CharField(max_length = 10, default="Requested", choices=STATUS, null=True, blank=False)
+    requestStatus = models.CharField(max_length = 10, default="Requested", choices=STATUS, null=True, blank=True)
     pickupAddress = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=False, null=True)
     
     def __str__(self):
@@ -115,12 +115,12 @@ ORDER_STATUS = (
        ("Completed", "Completed"),
        ("Request cancelled", "Request cancelled"),
        ("Order cancelled", "Order cancelled"),
-       ("Disabled", "Disabled"),
+       ("Disabled", "Disabled")
 ) 
 
 class Order(models.Model):
     sellRequest = models.OneToOneField(SellRequest, on_delete=models.CASCADE, null=True, blank=True)
-    requestStatus = models.CharField(max_length = 20, default="Accepted", choices=ORDER_STATUS, null=True, blank=False)
+    requestStatus = models.CharField(max_length = 20, default="Accepted", choices=ORDER_STATUS, null=True, blank=True)
     pickupDate = models.DateField()
     acceptedUser = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, blank=False, null=True, related_name='accepted_user', verbose_name='Accepted User')
     totalPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
