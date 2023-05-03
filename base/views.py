@@ -461,10 +461,10 @@ def itemManagementForAdmin(request):
         item = Item.objects.get(id=data['itemId'])
         category = Category.objects.get(id=data['categoryId'])
 
-        item.itemName=data['itemName'],
-        item.rate=data['rate'],
-        item.category=category,
-        item.unit=data['unit'],
+        item.itemName=data['itemName']
+        item.rate=data['rate']
+        item.category=category
+        item.unit=data['unit']
         item.save()
    
         serializer = ItemSerializer(item, many=False) 
