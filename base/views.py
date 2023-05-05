@@ -435,7 +435,7 @@ def cancelSellRequest(request, id):
         print("e", e)
         return Response({"error":e})     
 
-@api_view(['GET', 'POST', 'PUT']) 
+@api_view(['GET', 'POST', 'PUT', 'DELETE']) 
 @permission_classes([IsAuthenticated])
 def itemManagementForAdmin(request):
     if request.method == 'GET':
@@ -470,8 +470,17 @@ def itemManagementForAdmin(request):
         serializer = ItemSerializer(item, many=False) 
         return Response(serializer.data)
 
+    if request.method == "DELETE":
+        data = request.data   
 
-@api_view(['GET', 'POST', 'PUT']) 
+        item = Item.objects.get(id=data['itemId']) 
+        item.delete()
+        
+        serializer = ItemSerializer(item, many=False) 
+        return Response(serializer.data)
+
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE']) 
 @permission_classes([IsAuthenticated])
 def categoryManagementForAdmin(request):
     try:
@@ -493,11 +502,20 @@ def categoryManagementForAdmin(request):
 
             category = Category.objects.get(id=data['categoryId'])
 
-            category.categoryName=data['categoryName'],
+            category.categoryName=data['categoryName']
             category.save()
    
-            serializer =  ItemSerializer(category, many=False) 
+            serializer =  CategorySerializer(category, many=False) 
             return Response(serializer.data)
+
+        if request.method == "DELETE":
+            data = request.data
+            category = Category.objects.get(id=data['categoryId'])
+            category.delete()
+            
+            serializer =  CategorySerializer(category, many=False) 
+            return Response(serializer.data)
+
     except Category.DoesNotExist:
         return Response({"details":"No category Exist"})   
 
