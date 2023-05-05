@@ -471,9 +471,9 @@ def itemManagementForAdmin(request):
         return Response(serializer.data)
 
     if request.method == "DELETE":
-        data = request.data   
+        item_id = request.query_params.get('id', None)
 
-        item = Item.objects.get(id=data['itemId']) 
+        item = Item.objects.get(id=item_id) 
         item.delete()
         
         serializer = ItemSerializer(item, many=False) 
@@ -509,8 +509,8 @@ def categoryManagementForAdmin(request):
             return Response(serializer.data)
 
         if request.method == "DELETE":
-            data = request.data
-            category = Category.objects.get(id=data['categoryId'])
+            category_id = request.query_params.get('id', None)
+            category = Category.objects.get(id=category_id)
             category.delete()
             
             serializer =  CategorySerializer(category, many=False) 
