@@ -785,6 +785,6 @@ def chartStatForAdmin(request):
 
     user_end_result = [{**x, "month":x['month'].strftime('%B')} for x in user_result]
         
-    return Response({"User":{"labels":[label['month'] for label in user_end_result], "data":[data["count"] for data in user_end_result]}, "Order":{"labels":[label['month'] for label in order_end_result], "data":[data["count"] for data in order_end_result]}})  
+    return Response({"user":{"labels":[label['month'] for label in user_end_result], "data":[data["count"] for data in user_end_result]}, "order":{"labels":[label['month'] for label in order_end_result], "data":[data["count"] for data in order_end_result]}})  
 
 
