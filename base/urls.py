@@ -1,7 +1,7 @@
 
 from webbrowser import get
 from django.urls import path
-from .views import MyTokenObtainPairView, registerScraper, pickupAddressManagementForSeller, orderManagementForAdmin, statsForAdmin, sellRequestManagementForAdmin, scrapSellerManagementForAdmin, scrapBuyerAdminManagementForAdmin, scrapBuyerStaffManagementForAdmin, categoryManagementForAdmin, itemManagementForAdmin, cancelSellRequest, getAllSellRequestOrders, createSellRequest, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
+from .views import MyTokenObtainPairView, registerScraper, orderStatForAdmin, userStatForAdmin, pickupAddressManagementForSeller, orderManagementForAdmin, statsForAdmin, sellRequestManagementForAdmin, scrapSellerManagementForAdmin, scrapBuyerAdminManagementForAdmin, scrapBuyerStaffManagementForAdmin, categoryManagementForAdmin, itemManagementForAdmin, cancelSellRequest, getAllSellRequestOrders, createSellRequest, scraperAdminProfileCreator, addStaffToBusiness, getAllStaffs, deactivateStaff, getAllSellRequests, getAllTodaysSellRequests, getAllPendingOrders, getAllCompletedOrders, completeOrder, cancelOrder, acceptSellRequest, getOrdersToCompleteTodayForScraperStaff, getAllCategoryAndItems, registerScrapSeller, getAllReviews, manageOrderReview
 
 
 urlpatterns = [
@@ -39,6 +39,8 @@ urlpatterns = [
     path('admin/sellrequest-management/', sellRequestManagementForAdmin, name='sellRequestManagementForAdmin'),
     path('admin/order-management/', orderManagementForAdmin, name='orderManagementForAdmin'),
     path('admin/stats/', statsForAdmin, name='statsForAdmin'),
+    path('admin/order-stat/', orderStatForAdmin, name='orderStatForAdmin'),
+    path('admin/user-stat/', userStatForAdmin, name='userStatForAdmin'),
 
 
 ]

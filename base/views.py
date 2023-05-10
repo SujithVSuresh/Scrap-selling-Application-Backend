@@ -11,6 +11,11 @@ from rest_framework import status
 from .models import Address, Category, CustomUser, Item, ScraperAdminProfile, ScraperStaffProfile, SellRequest, Order, OrderItem, Review
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, date, timedelta
+from django.db.models.functions import TruncMonth
+from django.db.models import Count
+from django.db.models.functions import Coalesce
+
+
 
 
 
@@ -731,6 +736,67 @@ def pickupAddressManagementForSeller(request):
         return Response(serializer.data)
     except SellRequest.DoesNotExist:
         return Response({"Details":"No order found"}) 
+
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def orderStatForAdmin(request):
+    today = date.today()
+    six_months_ago = today - timedelta(days=180)
+
+   
+
+    order_count = Order.objects.filter(acceptedDate__gte=six_months_ago)\
+        .annotate(month=TruncMonth('acceptedDate'))\
+            .values('month')\
+                .annotate(count=Coalesce(Count('id'), 0)) \
+                    .order_by('-month')
+                   
+
+    date_range = [six_months_ago + timedelta(days=30*n) for n in range(6)]
+    print(date_range)
+    counts = [{'month': date, 'count': 0} for date in date_range]
+    print(counts)
+    result = []
+    for count in counts:
+        for item in order_count:
+            if count['month'].month == item['month'].month and count['month'].year == item['month'].year:
+                result.append(item)
+                break
+        else:
+            result.append(count)
+
+    end_result = [{**x, "month":x['month'].strftime('%B')} for x in result]        
+    return Response({"labels":[label['month'] for label in end_result], "data":[data["count"] for data in end_result]})  
+
+
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def userStatForAdmin(request):
+    today = date.today()
+    six_months_ago = today - timedelta(days=180)
+
+    user_count = CustomUser.objects.filter(date_joined__gte=six_months_ago)\
+        .annotate(month=TruncMonth('date_joined'))\
+            .values('month')\
+                .annotate(count=Coalesce(Count('id'), 0)) \
+                    .order_by('-month')        
+
+    date_range = [six_months_ago + timedelta(days=30*n) for n in range(6)]
+    print(date_range)
+    counts = [{'month': date, 'count': 0} for date in date_range]
+    print(counts)
+    result = []
+    for count in counts:
+        for item in user_count:
+            if count['month'].month == item['month'].month and count['month'].year == item['month'].year:
+                result.append(item)
+                break
+        else:
+            result.append(count)
+
+    end_result = [{**x, "month":x['month'].strftime('%B')} for x in result]        
+    return Response({"labels":[label['month'] for label in end_result], "data":[data["count"] for data in end_result]})        
 
 
                                                       
